@@ -1,0 +1,123 @@
+[
+{
+    "model": "course.course",
+    "pk": 1,
+    "fields": {
+      "name": "Test",
+      "preview": "",
+      "description": null
+    }
+  },
+  {
+    "model": "course.course",
+    "pk": 2,
+    "fields": {
+      "name": "Test22",
+      "preview": "",
+      "description": null
+    }
+  },
+  {
+    "model": "course.lesson",
+    "pk": 1,
+    "fields": {
+      "course": 1,
+      "name": "test_lesson",
+      "description": null,
+      "preview": "",
+      "url_video": null
+    }
+  },
+  {
+    "model": "course.lesson",
+    "pk": 2,
+    "fields": {
+      "course": 1,
+      "name": "test_lesson2",
+      "description": null,
+      "preview": "",
+      "url_video": null
+    }
+  },
+  {
+    "model": "users.user",
+    "pk": 1,
+    "fields": {
+        "last_login": null,
+        "is_superuser": false,
+        "first_name": "Test",
+        "last_name": "Testov",
+        "is_staff": false,
+        "is_active": true,
+        "email": "test@test.com",
+        "phone": "+7(999)999-99-99",
+        "city": "Test"
+    }
+},
+{
+    "model": "users.user",
+    "pk": 2,
+    "fields": {
+        "last_login": null,
+        "is_superuser": false,
+        "first_name": "Test2",
+        "last_name": "Testov2",
+        "is_staff": false,
+        "is_active": true,
+        "email": "test2@test.com",
+        "phone": "+7(222)999-99-99",
+        "city": "Test2"
+    }
+},
+{
+    "model": "users.user",
+    "pk": 3,
+    "fields": {
+        "last_login": null,
+        "is_superuser": false,
+        "first_name": "Test3",
+        "last_name": "Testov3",
+        "is_staff": false,
+        "is_active": true,
+        "email": "test3@test.com",
+        "phone": "+7(333)999-99-99",
+        "city": "Test3"
+    }
+},
+{
+    "model": "course.payments",
+    "pk": 1,
+    "fields": {
+        "user": 1,
+        "payment_date": "2023-06-08",
+        "course": 1,
+        "lesson": null,
+        "payment_sum": "11111",
+        "payment_type": "transfer"
+    }
+},
+{
+    "model": "course.payments",
+    "pk": 2,
+    "fields": {
+        "user": 1,
+        "payment_date": "2023-07-09",
+        "course": 1,
+        "lesson": null,
+        "payment_sum": "22222",
+        "payment_type": "cash"
+    }
+},
+{
+    "model": "course.payments",
+    "pk": 3,
+    "fields": {
+        "user": 2,
+        "payment_date": "2023-07-09",
+        "course": null,
+        "lesson": 1,
+        "payment_sum": "33333",
+        "payment_type": "cash"
+    }
+}
+]
