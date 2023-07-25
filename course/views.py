@@ -1,24 +1,24 @@
 from rest_framework import viewsets, generics
 from rest_framework.permissions import IsAuthenticated
 from course.models import Course, Lesson, Payments
-from course.permissions import IsOwnerOrModerator#, #IsModerator
+from course.permissions import IsModerator #, #IsModerator
 from course.serializers.serializers import CourseSerializers, LessonSerializers, PaymentsSerializers
 from rest_framework.filters import OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet
-# from users.models import UserRoles
+from users.models import UserRoles
 
 
 class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSerializers
     queryset = Course.objects.all()
-    permission_classes = [IsAuthenticated, IsOwnerOrModerator]
+    permission_classes = [IsAuthenticated]
     #
-    # def get_queryset(self):
-    #     user = self.request.user
-    #     if user.is_staff or user.is_superuser or user.role == UserRoles.MODERATOR:
-    #         return Course.objects.all()
-    #     else:
-    #         return Course.objects.filter(owner=user)
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff or user.is_superuser or user.role == UserRoles.MODERATOR:
+            return Course.objects.all()
+        else:
+            return Course.objects.filter(owner=user)
 
 
 # class CourseCreateAPIView(generics.CreateAPIView):
@@ -37,14 +37,14 @@ class CourseViewSet(viewsets.ModelViewSet):
 class LessonListView(generics.ListAPIView):
     serializer_class = LessonSerializers
     queryset = Lesson.objects.all()
-    permission_classes = [IsAuthenticated, IsOwnerOrModerator]
+    permission_classes = [IsAuthenticated]
     #
-    # def get_queryset(self):
-    #     user = self.request.user
-    #     if user.is_staff or user.is_superuser or user.role == UserRoles.MODERATOR:
-    #         return Lesson.objects.all()
-    #     else:
-    #         return Lesson.objects.filter(owner=user)
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff or user.is_superuser or user.role == UserRoles.MODERATOR:
+            return Lesson.objects.all()
+        else:
+            return Lesson.objects.filter(owner=user)
 
 
 class LessonCreateAPIView(generics.CreateAPIView):
@@ -52,38 +52,38 @@ class LessonCreateAPIView(generics.CreateAPIView):
     queryset = Lesson.objects.all()
     permission_classes = [IsAuthenticated]#, IsOwner]
     #
-    # def get_queryset(self):
-    #     user = self.request.user
-    #     if user.is_superuser:
-    #         return Lesson.objects.all()
-    #     else:
-    #         return Lesson.objects.filter(owner=user)
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser:
+            return Lesson.objects.all()
+        else:
+            return Lesson.objects.filter(owner=user)
 
 
 class LessonDetailView(generics.RetrieveAPIView):
     serializer_class = LessonSerializers
     queryset = Lesson.objects.all()
-    permission_classes = [IsAuthenticated, IsOwnerOrModerator]
+    permission_classes = [IsAuthenticated]
     #
-    # def get_queryset(self):
-    #     user = self.request.user
-    #     if user.is_staff or user.is_superuser or user.role == UserRoles.MODERATOR:
-    #         return Lesson.objects.all()
-    #     else:
-    #         return Lesson.objects.filter(owner=user)
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff or user.is_superuser or user.role == UserRoles.MODERATOR:
+            return Lesson.objects.all()
+        else:
+            return Lesson.objects.filter(owner=user)
 
 
 class LessonUpdateView(generics.UpdateAPIView):
     serializer_class = LessonSerializers
     queryset = Lesson.objects.all()
-    permission_classes = [IsAuthenticated, IsOwnerOrModerator]
+    permission_classes = [IsAuthenticated]
     #
-    # def get_queryset(self):
-    #     user = self.request.user
-    #     if user.is_staff or user.is_superuser or user.role == UserRoles.MODERATOR:
-    #         return Lesson.objects.all()
-    #     else:
-    #         return Lesson.objects.filter(owner=user)
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff or user.is_superuser or user.role == UserRoles.MODERATOR:
+            return Lesson.objects.all()
+        else:
+            return Lesson.objects.filter(owner=user)
 
 
 class LessonDeleteView(generics.DestroyAPIView):
@@ -91,12 +91,12 @@ class LessonDeleteView(generics.DestroyAPIView):
     queryset = Lesson.objects.all()
     permission_classes = [IsAuthenticated]#, IsOwner]
     #
-    # def get_queryset(self):
-    #     user = self.request.user
-    #     if user.is_superuser:
-    #         return Lesson.objects.all()
-    #     else:
-    #         return Lesson.objects.filter(owner=user)
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser:
+            return Lesson.objects.all()
+        else:
+            return Lesson.objects.filter(owner=user)
 
 
 class PaymentsListView(generics.ListAPIView):
