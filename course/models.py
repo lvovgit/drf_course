@@ -1,12 +1,15 @@
 from django.db import models
 from users.models import User
+
 NULLABLE = {'null': True, 'blank': True}
+
 
 class Course(models.Model):
     name = models.CharField(max_length=150, verbose_name='название')
     preview = models.ImageField(upload_to='course/', verbose_name='картинка', **NULLABLE)
     description = models.TextField(verbose_name='описание', **NULLABLE)
     owner = models.ForeignKey('users.User', on_delete=models.CASCADE, verbose_name='Создатель', **NULLABLE)
+
     class Meta:
         verbose_name = 'Курс'
         verbose_name_plural = 'Курсы'
@@ -22,6 +25,7 @@ class Lesson(models.Model):
     preview = models.ImageField(upload_to='lesson/', verbose_name='картинка', **NULLABLE)
     url_video = models.URLField(verbose_name='ссылка на видео', **NULLABLE)
     owner = models.ForeignKey('users.User', on_delete=models.CASCADE, verbose_name='Создатель', **NULLABLE)
+
     class Meta:
         verbose_name = "Урок"
         verbose_name_plural = "Уроки"
@@ -53,3 +57,13 @@ class Payments(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.payment_date}"
+
+
+class SubscriptionCourse(models.Model):
+    status = models.BooleanField(default=True, verbose_name='статус подписки')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='пользователь')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name='курс')
+
+    class Meta:
+        verbose_name = "Подписка"
+        verbose_name_plural = "Подписки"

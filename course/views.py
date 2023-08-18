@@ -1,10 +1,13 @@
-from rest_framework import viewsets, generics
-from rest_framework.permissions import IsAuthenticated
-from course.models import Course, Lesson, Payments
-from course.permissions import IsModerator #, #IsModerator
-from course.serializers.serializers import CourseSerializers, LessonSerializers, PaymentsSerializers
-from rest_framework.filters import OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet
+from rest_framework import viewsets, generics
+from rest_framework.filters import OrderingFilter
+from rest_framework.permissions import IsAuthenticated
+
+from course.models import Course, Lesson, Payments, SubscriptionCourse
+from course.paginators import LessonPaginator
+from course.serializers.serializers import CourseSerializers, LessonSerializers, PaymentsSerializers, \
+    SubscriptionCourseSerialisers
+from course.services import course_update
 from users.models import UserRoles
 
 
@@ -12,7 +15,11 @@ class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSerializers
     queryset = Course.objects.all()
     permission_classes = [IsAuthenticated]
-    #
+    pagination_class = LessonPaginator
+
+    def perform_create(self, serializer) -> None:
+        serializer.save(user=self.request.user)  # Сохраняет новому объекту владельца
+
     def get_queryset(self):
         user = self.request.user
         if user.is_staff or user.is_superuser or user.role == UserRoles.MODERATOR:
@@ -24,21 +31,22 @@ class CourseViewSet(viewsets.ModelViewSet):
 # class CourseCreateAPIView(generics.CreateAPIView):
 #     serializer_class = CourseSerializers
 #     queryset = Course.objects.all()
-    # permission_classes = [IsAuthenticated, IsModerator]
-    #
-    # def get_queryset(self):
-    #     user = self.request.user
-    #     if user.is_superuser:
-    #         return Course.objects.all()
-    #     else:
-    #         return Course.objects.filter(owner=user)
+# permission_classes = [IsAuthenticated, IsModerator]
+#
+# def get_queryset(self):
+#     user = self.request.user
+#     if user.is_superuser:
+#         return Course.objects.all()
+#     else:
+#         return Course.objects.filter(owner=user)
 
 
 class LessonListView(generics.ListAPIView):
     serializer_class = LessonSerializers
     queryset = Lesson.objects.all()
     permission_classes = [IsAuthenticated]
-    #
+    pagination_class = LessonPaginator
+
     def get_queryset(self):
         user = self.request.user
         if user.is_staff or user.is_superuser or user.role == UserRoles.MODERATOR:
@@ -50,7 +58,8 @@ class LessonListView(generics.ListAPIView):
 class LessonCreateAPIView(generics.CreateAPIView):
     serializer_class = LessonSerializers
     queryset = Lesson.objects.all()
-    permission_classes = [IsAuthenticated]#, IsOwner]
+    #permission_classes = [IsAuthenticated]  # , IsOwner]
+
     #
     def get_queryset(self):
         user = self.request.user
@@ -64,6 +73,7 @@ class LessonDetailView(generics.RetrieveAPIView):
     serializer_class = LessonSerializers
     queryset = Lesson.objects.all()
     permission_classes = [IsAuthenticated]
+
     #
     def get_queryset(self):
         user = self.request.user
@@ -77,6 +87,7 @@ class LessonUpdateView(generics.UpdateAPIView):
     serializer_class = LessonSerializers
     queryset = Lesson.objects.all()
     permission_classes = [IsAuthenticated]
+
     #
     def get_queryset(self):
         user = self.request.user
@@ -89,7 +100,8 @@ class LessonUpdateView(generics.UpdateAPIView):
 class LessonDeleteView(generics.DestroyAPIView):
     serializer_class = LessonSerializers
     queryset = Lesson.objects.all()
-    permission_classes = [IsAuthenticated]#, IsOwner]
+    permission_classes = [IsAuthenticated]  # , IsOwner]
+
     #
     def get_queryset(self):
         user = self.request.user
@@ -108,7 +120,20 @@ class PaymentsListView(generics.ListAPIView):
     ordering_fields = ['payment_date']
     permission_classes = [IsAuthenticated]
 
+
 """Фильтрация для эндпоинтов вывода списка платежей с возможностями:
 менять порядок сортировки по дате оплаты,
 фильтровать по курсу или уроку,
 фильтровать по способу оплаты."""
+
+
+class SubscriptionCreateAPIView(generics.CreateAPIView):
+    serializer_class = SubscriptionCourseSerialisers
+    queryset = SubscriptionCourse.objects.all()
+    permission_classes = [IsAuthenticated]
+
+
+class SubscriptionUpdateView(generics.UpdateAPIView):
+    serializer_class = SubscriptionCourseSerialisers
+    queryset = SubscriptionCourse.objects.all()
+    permission_classes = [IsAuthenticated]
