@@ -1,14 +1,18 @@
+import stripe
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet
-from rest_framework import viewsets, generics
+from rest_framework import viewsets, generics, status
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from course.models import Course, Lesson, Payments, SubscriptionCourse
 from course.paginators import LessonPaginator
-from course.serializers.serializers import CourseSerializers, LessonSerializers, PaymentsSerializers, \
-    SubscriptionCourseSerialisers
-from course.services import course_update
+from course.serializers.serializers import *
+from course.services import create_payment, checkout_session
+from djangoProject4 import settings
 from users.models import UserRoles
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -58,7 +62,8 @@ class LessonListView(generics.ListAPIView):
 class LessonCreateAPIView(generics.CreateAPIView):
     serializer_class = LessonSerializers
     queryset = Lesson.objects.all()
-    #permission_classes = [IsAuthenticated]  # , IsOwner]
+
+    # permission_classes = [IsAuthenticated]  # , IsOwner]
 
     #
     def get_queryset(self):
@@ -137,3 +142,45 @@ class SubscriptionUpdateView(generics.UpdateAPIView):
     serializer_class = SubscriptionCourseSerialisers
     queryset = SubscriptionCourse.objects.all()
     permission_classes = [IsAuthenticated]
+
+
+class PaymentCreateView(generics.CreateAPIView):
+    serializer_class = PaymentCreateSerializers
+    queryset = Payments.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        session = checkout_session(
+            course=serializer.validated_data['payed_course'],
+            user=self.request.user
+        )
+        serializer.save()
+        create_payment(course=serializer.validated_data['payed_course'],
+                       user=self.request.user)
+        return Response(session['id'], status=status.HTTP_201_CREATED)
+
+
+class GetPaymentView(APIView):
+    """Получение информации о платеже"""
+
+    def get(self, request, payment_id):
+        payment_intent = stripe.PaymentIntent.retrieve(payment_id)
+        return Response({
+            'status': payment_intent.status, })
+
+# class PaymentConfirm(generics.RetrieveAPIView):
+#     queryset = Payments.objects.all()
+#     serializer_class = PaymentsSerializers
+#
+#     def retrieve(self, request, *args, **kwargs):
+#         instance = self.get_object()
+#
+#         intent = StripeApi()
+#
+#         instance.status = intent.confirm_intent(
+#             instance.stripe_id)  # вызов метода по подтверждению платежа и обновление статуса платежа в бд
+#         instance.save()
+#         serializer = self.get_serializer(instance)
+#         return Response(serializer.data)
