@@ -22,12 +22,15 @@ class CourseViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     pagination_class = LessonPaginator
 
+
+
     def perform_create(self, serializer) -> None:
         serializer.save(user=self.request.user)  # Сохраняет новому объекту владельца
 
-    def perform_update(self, serializer):
-        self.object = serializer.save()
-        send_updated_email.delay(self.object.pk)
+    def update(self, request, *args, **kwargs):
+        send_updated_email(kwargs['pk'])
+
+        return super().update(request, *args, **kwargs)
 
     def get_queryset(self):
         user = self.request.user

@@ -10,7 +10,7 @@ from users.models import User
 def send_updated_email(course):
     subscribers_list = SubscriptionCourse.objects.filter(course=course)
     for sub in subscribers_list:
-        print('Отправлено сообщение об обновление')
+        print('Отправлено сообщение об обновлении')
         send_mail(
             'ALARM!',
             f'Сообщаем, что курс на который вы подписаны  обновлён',
