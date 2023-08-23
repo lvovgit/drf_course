@@ -7,11 +7,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from course.paginators import LessonPaginator
+from course.permissions import IsModerator
 from course.serializers.serializers import *
 from course.services import create_payment, checkout_session
 from djangoProject4 import settings
 from users.models import UserRoles
-
+from course.tasks import send_updated_email
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
@@ -24,6 +25,10 @@ class CourseViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer) -> None:
         serializer.save(user=self.request.user)  # Сохраняет новому объекту владельца
 
+    def perform_update(self, serializer):
+        self.object = serializer.save()
+        send_updated_email.delay(self.object.pk)
+
     def get_queryset(self):
         user = self.request.user
         if user.is_staff or user.is_superuser or user.role == UserRoles.MODERATOR:
@@ -32,17 +37,21 @@ class CourseViewSet(viewsets.ModelViewSet):
             return Course.objects.filter(owner=user)
 
 
-# class CourseCreateAPIView(generics.CreateAPIView):
-#     serializer_class = CourseSerializers
-#     queryset = Course.objects.all()
-# permission_classes = [IsAuthenticated, IsModerator]
-#
-# def get_queryset(self):
-#     user = self.request.user
-#     if user.is_superuser:
-#         return Course.objects.all()
-#     else:
-#         return Course.objects.filter(owner=user)
+class CourseCreateAPIView(generics.CreateAPIView):
+    serializer_class = CourseSerializers
+    queryset = Course.objects.all()
+    permission_classes = [IsAuthenticated, IsModerator]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser:
+            return Course.objects.all()
+        else:
+            return Course.objects.filter(owner=user)
+
+    def perform_create(self, serializer) -> None:
+        """Сохраняет новому объекту владельца"""
+        serializer.save(owner=self.request.user)
 
 
 class LessonListView(generics.ListAPIView):
@@ -170,17 +179,3 @@ class GetPaymentView(APIView):
         return Response({
             'status': payment_intent.status, })
 
-# class PaymentConfirm(generics.RetrieveAPIView):
-#     queryset = Payments.objects.all()
-#     serializer_class = PaymentsSerializers
-#
-#     def retrieve(self, request, *args, **kwargs):
-#         instance = self.get_object()
-#
-#         intent = StripeApi()
-#
-#         instance.status = intent.confirm_intent(
-#             instance.stripe_id)  # вызов метода по подтверждению платежа и обновление статуса платежа в бд
-#         instance.save()
-#         serializer = self.get_serializer(instance)
-#         return Response(serializer.data)

@@ -3,8 +3,8 @@ from djangoProject4 import settings
 import requests
 from course.models import Payments
 from django.conf import settings
-from course.models import Payments
-
+from course.models import Payments, Course, SubscriptionCourse
+from django.core.mail import send_mail
 def checkout_session(course, user):
     headers = {'Authorization': f'Bearer {settings.STRIPE_SECRET_KEY}'}
     data = [

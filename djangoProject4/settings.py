@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'drf_yasg',
     'corsheaders',
+    'django_celery_beat',
 
 ]
 
@@ -164,3 +165,17 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+
+# Настройки для Celery
+CELERY_BROKER_URL = 'redis://localhost:6379'  # URL-адрес брокера сообщений, например Redis
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'  # URL-адрес брокера результатов, также Redis
+CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+# Настройки для Celery
+CELERY_BEAT_SCHEDULE = {
+    'task-name': {
+        'task': 'myapp.tasks.my_task',  # Путь к задаче
+        'schedule': timedelta(minutes=10),  # Расписание выполнения задачи (например, каждые 10 минут)
+    },
+}
