@@ -12,10 +12,14 @@ def send_updated_email(course):
     for sub in subscribers_list:
         print('Отправлено сообщение об обновлении')
         send_mail(
-            'ALARM!',
-            f'Сообщаем, что курс на который вы подписаны  обновлён',
-            settings.EMAIL_HOST_USER,
-            [sub.user]
+            subject="Обновление курса!",
+            message=f"У курса {course.name} появилось обновление!",
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[sub.user]
+            # 'ALARM!',
+            # f'Сообщаем, что курс на который вы подписаны  обновлён',
+            # settings.EMAIL_HOST_USER,
+            # [sub.user]
         )
 
 @shared_task

@@ -13,6 +13,7 @@ urlpatterns = [
     path('lesson/create/', LessonCreateAPIView.as_view(), name='lesson_create'),
     path('payment/create/', PaymentCreateView.as_view(), name='lesson_create'),
     path('payment/<str:payment_id>/', GetPaymentView.as_view(), name='payment_get'),
+    path('course/create/', CourseCreateAPIView.as_view(), name='course_create'),
     path('subscription/create/', SubscriptionCreateAPIView.as_view(), name='subscription_create'),
     path('subscription/<int:pk>/update', SubscriptionUpdateView.as_view(), name='subscription_update'),
     path('lesson/<int:pk>/update', LessonUpdateView.as_view(), name='lesson_update'),
