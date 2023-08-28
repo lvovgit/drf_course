@@ -25,7 +25,7 @@ class CourseViewSet(viewsets.ModelViewSet):
 
 
     def perform_create(self, serializer) -> None:
-        serializer.save(user=self.request.user)  # Сохраняет новому объекту владельца
+        serializer.save(owner=self.request.user)  # Сохраняет новому объекту владельца
 
     def update(self, request, *args, **kwargs):
         send_updated_email(kwargs['pk'])
