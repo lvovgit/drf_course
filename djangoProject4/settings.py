@@ -13,8 +13,12 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+from django.contrib import staticfiles
+from dotenv import load_dotenv
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -86,8 +90,12 @@ WSGI_APPLICATION = 'djangoProject4.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'drf',
-        'USER': 'postgres',
+        'NAME': os.getenv("NAME_POSTGRES"),
+        'USER': os.getenv('USER_POSTGRES'),
+        'PASSWORD': os.getenv('PASSWORD_POSTGRES'),
+        'PORT': os.getenv('PORT_POSTGRES'),
+        'HOST': os.getenv('HOST_POSTGRES'),
+
     }
 }
 
@@ -124,6 +132,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = 'staticfiles/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
