@@ -4,9 +4,9 @@ services:
   db:
     restart: always
     container_name: pg_db
-    image: postgres:14
+    image: postgres:14-alpine
     env_file:
-      - ./.env
+      - .env
     volumes:
       - ./postgres_data/db:/var/lib/postgresql/data
     ports:
@@ -31,7 +31,6 @@ services:
       context: . #рабочая директория
       dockerfile: ./docker/Dockerfile
     network_mode: host
-    image: app
     container_name: app_django
     depends_on: #зависимости
       db:
@@ -39,7 +38,7 @@ services:
       redis:
         condition: service_started #условие что сервис запущен
     env_file:
-      - ./.env
+      - .env
     ports:
       - "8000:8000"
     volumes:
@@ -50,28 +49,3 @@ services:
       && python manage.py migrate
       && python manage.py runserver 0.0.0.0:8000"
 
-#  celery:
-#    container_name: celery
-#    build: .
-#    command: >
-#      bash -c "celery -A config.celery worker --loglevel=info"
-#    volumes:
-#      - .:/app
-#    links:
-#      - redis
-#    depends_on:
-#      - db
-#      - app
-#
-#  celery-beat:
-#    container_name: celery-beat
-#    build: .
-#    command: >
-#      bash -c "sleep 30 && celery -A config.celery beat --loglevel=info"
-#    volumes:
-#      - .:/app
-#    depends_on:
-#      - app
-#      - celery
-#volumes:
-#  postgres_data:
