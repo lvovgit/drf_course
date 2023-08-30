@@ -6,11 +6,11 @@ services:
     container_name: pg_db
     image: postgres:14
     env_file:
-      - .env.docker
+      - ./.env
     volumes:
       - ./postgres_data/db:/var/lib/postgresql/data
     ports:
-      - "5433:5432"
+      - "5432:5432"
     healthcheck:
       test: [ 'CMD-SHELL', 'pg_isready' ]
       interval: 10s
@@ -30,6 +30,7 @@ services:
     build:
       context: . #рабочая директория
       dockerfile: ./docker/Dockerfile
+    network_mode: host
     image: app
     container_name: app_django
     depends_on: #зависимости
@@ -38,13 +39,14 @@ services:
       redis:
         condition: service_started #условие что сервис запущен
     env_file:
-      - .env.docker
+      - ./.env
     ports:
       - "8000:8000"
     volumes:
       - .:/app/
     command: >
-      bash -c "python manage.py makemigrations
+      bash -c "python  manage.py collectstatic --noinput
+      &&python manage.py makemigrations --noinput
       && python manage.py migrate
       && python manage.py runserver 0.0.0.0:8000"
 
