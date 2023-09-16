@@ -1,51 +1,56 @@
-version: '3.11'
+version: '3.9'
 
 services:
-  db:
-    restart: always
-    container_name: pg_db
-    image: postgres:14-alpine
+  app:
+    build:
+      context: .
     env_file:
       - .env
-    volumes:
-      - ./postgres_data/db:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
-    healthcheck:
-      test: [ 'CMD-SHELL', 'pg_isready' ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - '8000:8000'
+    command: >
+      bash -c "python  manage.py collectstatic --noinput
+      && python manage.py makemigrations
+      && python manage.py migrate
+      && python manage.py runserver 0.0.0.0:8000"
+    depends_on:
+      - db
+  db:
+    image: postgres:14.7-alpine
+    env_file:
+      - .env
+    ports:
+      - '5432:5432'
+#    healthcheck:
+#      test: [ 'CMD-SHELL', 'pg_isready' ]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 5
+
 
   redis:
     image: redis:alpine
     container_name: redis_app
     command: redis-server --save 20 1 --loglevel warning
-    volumes:
-      - ./redis_data/cache:/data
-    ports:
-      - "6379:6379"
 
-  app:
-    build:
-      context: . #рабочая директория
-      dockerfile: ./docker/Dockerfile
-    network_mode: host
-    container_name: app_django
-    depends_on: #зависимости
-      db:
-        condition: service_healthy #условие что прошел helthcheck
-      redis:
-        condition: service_started #условие что сервис запущен
-    env_file:
-      - .env
-    ports:
-      - "8000:8000"
-    volumes:
-      - .:/app/
+
+  celery:
+    container_name: celery
+    build: .
     command: >
-      bash -c "python  manage.py collectstatic --noinput
-      &&python manage.py makemigrations --noinput
-      && python manage.py migrate
-      && python manage.py runserver 0.0.0.0:8000"
+      bash -c "celery -A djangoProject4.celery worker --loglevel=info"
+    links:
+      - redis
+    depends_on:
+      - db
+      - app
+      - redis
+
+  celery-beat:
+    container_name: celery-beat
+    build: .
+    command: >
+      bash -c "sleep 30 && celery -A djangoProject4.celery beat --loglevel=info"
+    depends_on:
+      - celery
 

@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / '.env')
+load_dotenv(BASE_DIR / '..env')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -91,10 +91,12 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.getenv("POSTGRES_DB"),
+        # 'HOST': os.getenv('POSTGRES_HOST'),
         'USER': os.getenv('POSTGRES_USER'),
+        'HOST': 'db',
         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'PORT': os.getenv('POSTGRES_PORT'),
-        'HOST': os.getenv('POSTGRES_HOST'),
+        'PORT': os.getenv('DB_PORT'),
+
 
     }
 }
@@ -141,8 +143,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 EMAIL_HOST = 'smtp.yandex.com'
 EMAIL_PORT = 465
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")      # берет из .env
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")      # берет из .env
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")      # берет из ..env
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")      # берет из ..env
 EMAIL_USE_TLS = False            # у gmail наоборот True
 EMAIL_USE_SSL = True             # у gmail наоборот False
 
